@@ -1,0 +1,52 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package ConDAO;
+
+import com.sun.jdi.connect.spi.Connection;
+import java.sql.DatabaseMetaData;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author hoanganh
+ */
+public class SinhVienDAO {
+      private final String serverName = "localhost";
+    private final String dbName = "QuanLySinhVien";
+    private final String portNumber = "51900";
+    private final String userID = "sa";
+    private final String pass = "17062004";
+    String url = "jdbc:sqlserver://" + serverName + ":" + portNumber + ";databaseName=" + dbName + ";user=" + userID + ";password=" + pass;
+
+    public java.sql.Connection getConnectDAO() {
+        java.sql.Connection conn = null;
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            System.out.println("ban da cai dirver jdbc");
+        } catch (Exception e) {
+            System.out.println("ban chua cai dat driver JDBC");
+        }
+        try {
+            conn = DriverManager.getConnection(url);
+            System.out.println("ket noi thanh cong");
+            return conn;
+        } catch (Exception e) {
+            System.out.println("ket noi voi co so du lieu khong thanh cong");
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) {
+        SinhVienDAO conn = new SinhVienDAO();
+        conn.getConnectDAO();
+    }
+    
+    
+}

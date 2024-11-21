@@ -1,0 +1,132 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package server;
+
+import ConDAO.SinhVienDAO;
+import com.sun.jdi.connect.spi.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import model.SinhVien;
+
+/**
+ *
+ * @author hoanganh
+ */
+public class SerVerSinhvien{
+    public ArrayList<SinhVien> getAllDao() {
+        SinhVienDAO con = new SinhVienDAO();
+
+        ArrayList<SinhVien> dsnv = new ArrayList<>();
+        String sql = "select * from SinhVien";
+        try {
+            java.sql.Connection conn = con.getConnectDAO();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                dsnv.add(new SinhVien(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
+            }
+            System.out.println("lay du lieu thanh cong");
+        } catch (Exception e) {
+        }
+        return dsnv;
+    }
+    
+    public void AddSV(SinhVien sv){
+    String sql = "INSERT INTO SinhVien (MaSinhVien, HoTen, NgaySinh, TONGDIEM)\n" +
+"VALUES (?,?,?, ?);";
+    try {
+        SinhVienDAO con = new SinhVienDAO();
+        java.sql.Connection conn = con.getConnectDAO();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, sv.getMaSinhVien());
+        ps.setString(2, sv.getHoTen());
+        ps.setString(3, sv.getNgaySinh());
+        ps.setString(4, sv.getTONGDIEM());
+        ps.executeUpdate();
+        System.out.println("Thêm dữ liệu thành công");
+    } catch (Exception e) {
+        e.printStackTrace();  // In lỗi ra console để biết chi tiết lỗi nếu có
+    }
+}
+    
+   public void update(SinhVien s) {
+    String sql = "UPDATE SinhVien SET HoTen = ?, NgaySinh = ?, TONGDIEM = ? WHERE MaSinhVien = ?";
+    try {
+        // Kiểm tra và chuyển đổi ngày sinh sang định dạng yyyy-MM-dd
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date parsedDate = null;
+        
+        try {
+            // Thử chuyển chuỗi NgaySinh thành đối tượng Date
+            parsedDate = sdf.parse(s.getNgaySinh());
+        } catch (ParseException e) {
+            // Hiển thị lỗi nếu ngày tháng không hợp lệ
+            System.out.println("Ngày sinh không hợp lệ. Định dạng cần phải là yyyy-MM-dd.");
+            return; // Dừng lại nếu không hợp lệ
+        }
+        
+        // Chuyển đối tượng Date thành chuỗi định dạng SQL
+        String formattedDate = sdf.format(parsedDate);
+
+        // Kết nối cơ sở dữ liệu và thực hiện cập nhật
+        SinhVienDAO con = new SinhVienDAO();
+        java.sql.Connection conn = con.getConnectDAO();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(4, s.getMaSinhVien());
+        ps.setString(1, s.getHoTen());
+        ps.setString(2, formattedDate); // Gửi ngày đã chuyển thành chuỗi chuẩn
+        ps.setString(3, s.getTONGDIEM());
+        
+        ps.executeUpdate();
+        conn.close();
+
+        System.out.println("Cập nhật thành công!");
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+    public void delete(SinhVien s) {
+    String sql = "DELETE FROM SinhVien WHERE MaSinhVien = ?"; // Hoặc HoTen nếu bạn muốn xóa theo tên
+    try {
+        // Kết nối với cơ sở dữ liệu
+        SinhVienDAO con = new SinhVienDAO();
+        java.sql.Connection conn = con.getConnectDAO();
+        
+        // Chuẩn bị câu lệnh SQL
+        PreparedStatement ps = conn.prepareStatement(sql);
+        
+        // Cài đặt tham số cho câu lệnh SQL (dùng mã sinh viên làm điều kiện WHERE)
+        ps.setString(1, s.getMaSinhVien()); // Hoặc ps.setString(1, s.getHoTen()) nếu xóa theo tên
+        
+        // Thực thi câu lệnh DELETE
+        int rowsAffected = ps.executeUpdate();
+        
+        if (rowsAffected > 0) {
+            System.out.println("Xóa sinh viên thành công!");
+        } else {
+            System.out.println("Không tìm thấy sinh viên để xóa.");
+        }
+        
+        conn.close(); // Đóng kết nối
+
+    } catch (Exception e) {
+        e.printStackTrace(); // In ra lỗi nếu có
+    }
+}
+
+     public static void main(String[] args) {
+        SerVerSinhvien nv = new SerVerSinhvien();
+        nv.getAllDao();
+        System.out.println(nv.getAllDao());
+    }
+
+    
+}
